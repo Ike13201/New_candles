@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Candle Workflow Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    /****************************************
+     1. Global Reset & Base Styles
+    ****************************************/
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont,
+                   "Segoe UI", Roboto, Oxygen, Ubuntu,
+                   Cantarell, "Fira Sans", "Droid Sans",
+                   "Helvetica Neue", Helvetica, Arial, sans-serif;
+      background-color: #fff;
+      color: #1d1d1f;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      line-height: 1.4;
+      overflow-x: hidden; /* no horizontal scroll */
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* ---- Dark Mode ---- */
+    body.dark-mode {
+      background-color: #1c1c1e;
+      color: #f5f5f7;
+    }
+
+    /****************************************
+     2. Container & Layout
+    ****************************************/
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    header {
+      padding: 60px 20px 40px 20px;
+      text-align: center;  /* Keep header centered */
+      position: relative;
+    }
+
+    main {
+      min-height: 60vh;
+    }
+
+    footer {
+      border-top: 1px solid #eaeaea;
+      padding: 40px 20px;
+      text-align: center;
+      color: #6e6e73;
+      font-size: 0.9rem;
+      transition: border-color 0.3s ease, color 0.3s ease;
+    }
+
+    body.dark-mode footer {
+      border-top-color: #2c2c2e;
+      color: #a1a1a6;
+    }
+
+    /****************************************
+     3. Header
+    ****************************************/
+    .hero-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .hero-subtitle {
+      font-size: 1.25rem;
+      color: #86868b;
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.4;
+    }
+
+    body.dark-mode .hero-subtitle {
+      color: #c7c7cc;
+    }
+
+    /* ---- Dark Mode Toggle Button ---- */
+    #darkModeToggle {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background-color: #e0e0e0;
+      color: #333;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 16px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    #darkModeToggle:hover {
+      background-color: #ccc;
+    }
+    body.dark-mode #darkModeToggle {
+      background-color: #444446;
+      color: #fff;
+    }
+    body.dark-mode #darkModeToggle:hover {
+      background-color: #5c5c5e;
+    }
+
+    /****************************************
+     4. Panels / Cards
+    ****************************************/
+    .panel {
+      background-color: #f5f5f7;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+      padding: 40px;
+      margin-bottom: 40px;
+      transition: box-shadow 0.3s ease, background-color 0.3s ease;
+    }
+
+    .panel:hover {
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    body.dark-mode .panel {
+      background-color: #2c2c2e;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    h2.panel-title {
+      font-size: 1.75rem;
+      margin-bottom: 16px;
+      font-weight: 600;
+      color: #1d1d1f;
+      transition: color 0.3s ease;
+    }
+
+    body.dark-mode h2.panel-title {
+      color: #f5f5f7;
+    }
+
+    h3.panel-subtitle {
+      font-size: 1.2rem;
+      font-weight: 500;
+      margin-bottom: 16px;
+      color: #1d1d1f;
+      transition: color 0.3s ease;
+    }
+
+    body.dark-mode h3.panel-subtitle {
+      color: #f5f5f7;
+    }
+
+    /****************************************
+     5. Sign-In Section (left-aligned)
+    ****************************************/
+    #signInSection {
+      text-align: left; /* revert to old layout style */
+    }
+
+    #signInSection label {
+      display: block;
+      margin: 8px 0 4px 0;
+      font-weight: 500;
+      color: #515154;
+    }
+
+    body.dark-mode #signInSection label {
+      color: #dcdce0;
+    }
+
+    #signInSection input[type="radio"] {
+      margin-right: 6px;
+    }
+
+    /****************************************
+     6. Labels, Inputs, & Text
+    ****************************************/
+    .panel label {
+      font-weight: 500;
+    }
+
+    .panel p {
+      margin: 4px 0 10px 0;
+      color: #515154;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 12px;
+      border-radius: 12px;
+      border: 1px solid #d2d2d7;
+      font-size: 1rem;
+      outline: none;
+      transition: border 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+    }
+
+    input[type="text"]:focus {
+      border: 1px solid #0071e3;
+    }
+
+    body.dark-mode input[type="text"] {
+      background-color: #3a3a3c;
+      color: #f5f5f7;
+      border: 1px solid #575759;
+    }
+
+    body.dark-mode input[type="text"]:focus {
+      border: 1px solid #0a84ff;
+    }
+
+    /****************************************
+     7. Buttons
+    ****************************************/
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 24px;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      margin-right: 8px;
+      margin-top: 8px;
+      display: inline-block;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background-color: #0071e3;
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background-color: #005bb5;
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background-color: #e0e0e0;
+      color: #333;
+    }
+
+    .btn-secondary:hover {
+      background-color: #ccc;
+      transform: translateY(-2px);
+    }
+
+    body.dark-mode .btn-secondary {
+      background-color: #444446;
+      color: #e0e0e0;
+    }
+    body.dark-mode .btn-secondary:hover {
+      background-color: #5c5c5e;
+    }
+
+    /****************************************
+     8. Step Log Table
+    ****************************************/
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background-color: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      transition: background-color 0.3s ease;
+      margin-bottom: 20px;
+    }
+
+    body.dark-mode table {
+      background-color: #2c2c2e;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 12px 16px;
+      border-bottom: 1px solid #e8e8ed;
+      font-size: 0.95rem;
+      transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+    }
+
+    th {
+      background-color: #f5f5f7;
+      font-weight: 600;
+      color: #1d1d1f;
+    }
+
+    body.dark-mode th {
+      background-color: #3a3a3c;
+      color: #f5f5f7;
+      border-color: #515154;
+    }
+
+    body.dark-mode td {
+      border-bottom-color: #515154;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    /****************************************
+     9. Utility Classes & Misc
+    ****************************************/
+    .hidden {
+      display: none;
+    }
+    .mt-20 { margin-top: 20px; }
+    .text-bold { font-weight: 600; }
+
+    /* Step Title stand out */
+    .highlight-step {
+      color: #0071e3;
+      font-weight: 700;
+    }
+
+    .worker2-fields {
+      margin-top: 12px;
+    }
+
+    /****************************************
+     10. Animations (Apple-like)
+    ****************************************/
+    /* Simple fade+slide in from below */
+    @keyframes fadeInUp {
+      0% {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .animate-in {
+      animation: fadeInUp 0.8s ease forwards;
+    }
+
+    /* Another for finishing steps (like a pop) */
+    @keyframes popIn {
+      0% {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+    .animate-pop {
+      animation: popIn 0.6s ease forwards;
+    }
+
+    /* Sending animation (fake "sending" effect) */
+    @keyframes sendBlink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+    .animate-sending {
+      animation: sendBlink 1.2s ease 2; /* blink twice */
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <div class="container">
+      <button id="darkModeToggle">Dark Mode</button>
+      <h1 class="hero-title">Candle Workflow Tracker</h1>
+      <p class="hero-subtitle">
+        A sleek design for streamlining your candle-making process and keeping track of every step.
+      </p>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container">
+    <!-- Sign-In Section (Left-Aligned as before) -->
+    <div id="signInSection" class="panel">
+      <h2 class="panel-title">Sign In</h2>
+
+      <!-- Solo / Pairs Option -->
+      <label>Are you working:</label>
+      <label>
+        <input type="radio" name="workMode" value="solo" checked />
+        Solo
+      </label>
+      <label>
+        <input type="radio" name="workMode" value="pairs" />
+        Pairs
+      </label>
+
+      <div class="worker1-fields">
+        <label for="firstName1">Worker 1 - First Name</label>
+        <input type="text" id="firstName1" placeholder="e.g. John" />
+
+        <label for="lastInitial1">Worker 1 - Last Initial</label>
+        <input type="text" id="lastInitial1" placeholder="e.g. D" />
+      </div>
+
+      <div id="worker2Section" class="worker2-fields hidden">
+        <label for="firstName2">Worker 2 - First Name</label>
+        <input type="text" id="firstName2" placeholder="e.g. Jane" />
+
+        <label for="lastInitial2">Worker 2 - Last Initial</label>
+        <input type="text" id="lastInitial2" placeholder="e.g. S" />
+      </div>
+
+      <button id="signInBtn" class="btn-primary">Sign In</button>
+    </div>
+
+    <!-- Workflow Section -->
+    <div id="workflowSection" class="panel hidden">
+      <h2 class="panel-title">
+        Welcome, <span id="userName"></span>
+      </h2>
+
+      <div id="currentStepContainer">
+        <h3 id="stepTitle" class="panel-subtitle highlight-step"></h3>
+        <p>
+          <span class="text-bold">Start Time:</span> 
+          <span id="startTimeDisplay">N/A</span>
+        </p>
+        <p>
+          <span class="text-bold">Finish Time:</span> 
+          <span id="finishTimeDisplay">N/A</span>
+        </p>
+        <p>
+          <span class="text-bold">Elapsed Time:</span> 
+          <span id="elapsedTimeDisplay">0s</span>
+        </p>
+      </div>
+
+      <div>
+        <button id="startBtn" class="btn-secondary">Start</button>
+        <button id="finishBtn" class="btn-secondary">Finish</button>
+        <button id="nextStepBtn" class="btn-primary">Next Step</button>
+      </div>
+
+      <!-- Logged Steps Table -->
+      <div id="logSection" class="mt-20">
+        <h3 class="panel-subtitle">Step Log</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Step</th>
+              <th>Start</th>
+              <th>Finish</th>
+              <th>Elapsed (h:m:s)</th>
+            </tr>
+          </thead>
+          <tbody id="logTableBody"></tbody>
+        </table>
+      </div>
+
+      <button id="sendLogBtn" class="btn-primary mt-20 hidden">Send Log</button>
+    </div>
+
+    <!-- A hidden "completed" message, if you want a pop animation at the end -->
+    <div id="completeMessage" class="panel hidden">
+      <h2 class="panel-title">All Steps Are Complete!</h2>
+      <p>Great job!</p>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      &copy; <span id="year"></span> Candle Workflow Tracker. All rights reserved.
+    </div>
+  </footer>
+
+  <script>
+    /********************************************
+     * 1. Variables & DOM
+    ********************************************/
+    const workModeRadios    = document.getElementsByName('workMode');
+    const worker2Section    = document.getElementById('worker2Section');
+
+    const firstName1Input   = document.getElementById('firstName1');
+    const lastInitial1Input = document.getElementById('lastInitial1');
+    const firstName2Input   = document.getElementById('firstName2');
+    const lastInitial2Input = document.getElementById('lastInitial2');
+
+    const signInSection     = document.getElementById('signInSection');
+    const signInBtn         = document.getElementById('signInBtn');
+
+    const workflowSection   = document.getElementById('workflowSection');
+    const userNameSpan      = document.getElementById('userName');
+
+    const stepTitle         = document.getElementById('stepTitle');
+    const startTimeDisplay  = document.getElementById('startTimeDisplay');
+    const finishTimeDisplay = document.getElementById('finishTimeDisplay');
+    const elapsedTimeDisplay= document.getElementById('elapsedTimeDisplay');
+
+    const startBtn          = document.getElementById('startBtn');
+    const finishBtn         = document.getElementById('finishBtn');
+    const nextStepBtn       = document.getElementById('nextStepBtn');
+    const logTableBody      = document.getElementById('logTableBody');
+    const sendLogBtn        = document.getElementById('sendLogBtn');
+
+    const completeMessage   = document.getElementById('completeMessage');
+
+    const darkModeToggle    = document.getElementById('darkModeToggle');
+    const yearSpan          = document.getElementById('year');
+
+    // Steps
+    const steps = [
+      "Step 1: Wick Cutting",
+      "Step 2: Removing Wick Setters",
+      "Step 3: Melting Candle Tops",
+      "Step 4: Cleaning Rims",
+      "Step 5: Labeling",
+      "Step 6: Quality Control (QC) Check",
+      "Step 7: Boxing",
+      "Step 8: Second QC Check",
+      "Step 9: Transfer to Fulfillment",
+      "Step 10: Table Setup for Next Batch",
+      "Step 11: Final QC Check",
+      "Step 12: Tool Maintenance and Availability Check",
+      "Step 13: End-of-Day Cleanup"
+    ];
+    let currentStepIndex = 0;
+    let completedSteps   = [];
+
+    // Time Tracking
+    let startTime   = null;
+    let finishTime  = null;
+    let timer       = null;
+    let elapsedSecs = 0;
+
+    // Worker info
+    let worker1FullName = "";
+    let worker2FullName = "";
+    let isPairs         = false;
+
+    /********************************************
+     * 2. On Load
+    ********************************************/
+    yearSpan.textContent = new Date().getFullYear();
+
+    // Toggle Worker 2 fields
+    workModeRadios.forEach(radio => {
+      radio.addEventListener('change', () => {
+        if (radio.value === 'pairs' && radio.checked) {
+          worker2Section.classList.remove('hidden');
+          isPairs = true;
+        } else if (radio.value === 'solo' && radio.checked) {
+          worker2Section.classList.add('hidden');
+          isPairs = false;
+        }
+      });
+    });
+
+    /********************************************
+     * 3. Sign In
+    ********************************************/
+    signInBtn.addEventListener('click', () => {
+      const fName1 = firstName1Input.value.trim();
+      const lInit1 = lastInitial1Input.value.trim().slice(0,1).toUpperCase();
+
+      if (!fName1) {
+        alert("Please enter Worker 1's first name.");
+        return;
+      }
+      worker1FullName = `${fName1} ${lInit1}.`;
+
+      if (isPairs) {
+        const fName2 = firstName2Input.value.trim();
+        const lInit2 = lastInitial2Input.value.trim().slice(0,1).toUpperCase();
+        if (!fName2) {
+          alert("Please enter Worker 2's first name.");
+          return;
+        }
+        worker2FullName = `${fName2} ${lInit2}.`;
+        userNameSpan.textContent = `${worker1FullName} & ${worker2FullName}`;
+      } else {
+        userNameSpan.textContent = worker1FullName;
+      }
+
+      // Hide sign-in panel, show workflow with animation
+      signInSection.classList.add('hidden');
+      workflowSection.classList.remove('hidden');
+      workflowSection.classList.add('animate-in'); // fadeInUp animation
+
+      loadStep();
+    });
+
+    /********************************************
+     * 4. Load Current Step
+    ********************************************/
+    function loadStep() {
+      startTime   = null;
+      finishTime  = null;
+      elapsedSecs = 0;
+      clearInterval(timer);
+
+      if (currentStepIndex >= steps.length) {
+        // All steps complete
+        stepTitle.textContent = "All Steps Complete!";
+        startBtn.disabled     = true;
+        finishBtn.disabled    = true;
+        nextStepBtn.disabled  = true;
+        sendLogBtn.classList.remove('hidden');
+
+        // Show final "complete" panel with a pop animation
+        completeMessage.classList.remove('hidden');
+        completeMessage.classList.add('animate-pop');
+        return;
+      }
+
+      stepTitle.textContent         = steps[currentStepIndex];
+      startTimeDisplay.textContent  = "N/A";
+      finishTimeDisplay.textContent = "N/A";
+      elapsedTimeDisplay.textContent= "0s";
+
+      startBtn.disabled    = false;
+      finishBtn.disabled   = false;
+      nextStepBtn.disabled = false;
+    }
+
+    /********************************************
+     * 5. Start & Finish
+    ********************************************/
+    startBtn.addEventListener('click', () => {
+      if (startTime) {
+        alert("You already started this step!");
+        return;
+      }
+      startTime = new Date();
+      startTimeDisplay.textContent = startTime.toLocaleTimeString();
+
+      timer = setInterval(() => {
+        elapsedSecs++;
+        elapsedTimeDisplay.textContent = formatSecs(elapsedSecs);
+      }, 1000);
+    });
+
+    finishBtn.addEventListener('click', () => {
+      if (!startTime) {
+        alert("You haven't started the step yet!");
+        return;
+      }
+      if (finishTime) {
+        alert("You already finished this step!");
+        return;
+      }
+      finishTime = new Date();
+      finishTimeDisplay.textContent = finishTime.toLocaleTimeString();
+
+      clearInterval(timer);
+    });
+
+    /********************************************
+     * 6. Next Step
+    ********************************************/
+    nextStepBtn.addEventListener('click', () => {
+      if (!startTime || !finishTime) {
+        alert("Please start and finish this step before proceeding.");
+        return;
+      }
+
+      // Convert difference to h:m:s
+      const msDiff = finishTime - startTime;
+      const totalSecs = Math.floor(msDiff / 1000);
+      const hrs = Math.floor(totalSecs / 3600);
+      const leftover = totalSecs % 3600;
+      const mins = Math.floor(leftover / 60);
+      const secs = leftover % 60;
+      const finalElapsed = `${hrs}h ${mins}m ${secs}s`;
+
+      // Log the completed step
+      completedSteps.push({
+        stepName: steps[currentStepIndex],
+        start: startTime.toLocaleTimeString(),
+        finish: finishTime.toLocaleTimeString(),
+        elapsed: finalElapsed
+      });
+
+      addLogRow(
+        steps[currentStepIndex],
+        startTime,
+        finishTime,
+        finalElapsed
+      );
+
+      currentStepIndex++;
+      loadStep();
+    });
+
+    /********************************************
+     * 7. Add a Row to the Step Log
+    ********************************************/
+    function addLogRow(stepName, startVal, finishVal, elapsed) {
+      const tr = document.createElement('tr');
+
+      const tdStep    = document.createElement('td');
+      const tdStart   = document.createElement('td');
+      const tdFinish  = document.createElement('td');
+      const tdElapsed = document.createElement('td');
+
+      tdStep.textContent    = stepName;
+      tdStart.textContent   = startVal.toLocaleString();
+      tdFinish.textContent  = finishVal.toLocaleString();
+      tdElapsed.textContent = elapsed;
+
+      tr.appendChild(tdStep);
+      tr.appendChild(tdStart);
+      tr.appendChild(tdFinish);
+      tr.appendChild(tdElapsed);
+
+      logTableBody.appendChild(tr);
+    }
+
+    /********************************************
+     * 8. Send Log Button (with animation)
+    ********************************************/
+    sendLogBtn.addEventListener('click', () => {
+      // Animate the button or something for "sending"
+      sendLogBtn.classList.add('animate-sending');
+
+      // Build CSV with date + workers
+      const dateStr = new Date().toLocaleDateString();
+      let workerInfo = `Workers: ${worker1FullName}`;
+      if (isPairs) {
+        workerInfo += `, ${worker2FullName}`;
+      }
+
+      const csvData = convertToCSV(completedSteps, dateStr, workerInfo);
+      downloadFile(csvData, "candle_log.csv", "text/csv");
+
+      // Remove animation after a short delay so it can replay if needed
+      setTimeout(() => {
+        sendLogBtn.classList.remove('animate-sending');
+      }, 2500);
+    });
+
+    function convertToCSV(stepArray, dateStr, workerInfo) {
+      let csv = `Date: ${dateStr}\n`;
+      csv += `${workerInfo}\n\n`;
+      csv += "Step,Start Time,Finish Time,Elapsed\n";
+      stepArray.forEach(step => {
+        csv += `${step.stepName},${step.start},${step.finish},${step.elapsed}\n`;
+      });
+      return csv;
+    }
+
+    function downloadFile(data, filename, type) {
+      const blob = new Blob([data], { type: type });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = "none";
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    /********************************************
+     * 9. Helper: Format Seconds -> "1h 5m 43s"
+    ********************************************/
+    function formatSecs(totalSecs) {
+      const hrs = Math.floor(totalSecs / 3600);
+      const leftover = totalSecs % 3600;
+      const mins = Math.floor(leftover / 60);
+      const secs = leftover % 60;
+      return `${hrs}h ${mins}m ${secs}s`;
+    }
+
+    /********************************************
+     * 10. Dark Mode Toggle
+    ********************************************/
+    darkModeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('dark-mode');
+      if (document.body.classList.contains('dark-mode')) {
+        darkModeToggle.textContent = 'Light Mode';
+      } else {
+        darkModeToggle.textContent = 'Dark Mode';
+      }
+    });
+  </script>
+</body>
+</html>
